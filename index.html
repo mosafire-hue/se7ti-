@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>صحتي</title>
+<style>
+body{font-family:Arial,sans-serif;background:#f0fdfa;margin:0;padding:16px;max-width:600px;margin:0 auto}
+header{text-align:center;padding:20px}
+h1{color:#0f766e}
+.tabs{display:flex;gap:5px;margin-bottom:15px;background:#fff;padding:5px;border-radius:10px}
+.tab{flex:1;padding:10px;border:none;border-radius:8px;background:transparent;cursor:pointer;font-weight:bold;color:#64748b}
+.tab.active{background:#0d9488;color:#fff}
+.section{display:none;background:#fff;padding:15px;border-radius:10px;margin-bottom:10px}
+.section.active{display:block}
+input,select,textarea{width:100%;padding:10px;margin:5px 0;border:1px solid #ccc;border-radius:5px;box-sizing:border-box}
+button.save{background:#0d9488;color:#fff;padding:10px 20px;border:none;border-radius:5px;cursor:pointer;font-weight:bold}
+.item{background:#f8fafc;padding:10px;margin:5px 0;border-radius:5px;border:1px solid #e2e8f0;position:relative}
+.del{position:absolute;top:5px;left:5px;background:red;color:#fff;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer}
+</style>
+</head>
+<body>
+<header><h1>💊 صحتي</h1><p>متابعة الفحوصات والأدوية</p></header>
+
+<div class="tabs">
+<button class="tab active" onclick="show(1)">🔔 التنبيهات</button>
+<button class="tab" onclick="show(2)">🩺 الفحوصات</button>
+<button class="tab" onclick="show(3)">💊 الأدوية</button>
+</div>
+
+<div id="sec1" class="section active">
+  <h3>التنبيهات</h3>
+  <div id="alerts">لا توجد تنبيهات</div>
+</div>
+
+<div id="sec2" class="section">
+  <h3>إضافة فحص</h3>
+  <input id="en" placeholder="نوع الفحص">
+  <input type="date" id="ed">
+  <select id="ef"><option value="1">كل شهر</option><option value="3">كل 3 أشهر</option><option value="6">كل 6 أشهر</option><option value="12">كل سنة</option></select>
+  <button class="save" onclick="addExam()">حفظ الفحص</button>
+  <div id="elist"></div>
+</div>
+
+<div id="sec3" class="section">
+  <h3>إضافة دواء</h3>
+  <input id="mn" placeholder="اسم الدواء">
+  <input type="number" id="mb" placeholder="عدد العلب" value="1">
+  <input type="number" id="mp" placeholder="حبات كل علبة">
+  <input type="number" id="md" placeholder="الجرعة اليومية">
+  <button class="save" onclick="addMed()">حفظ الدواء</button>
+  <div id="mlist"></div>
+</div>
+
+<script>
+var exams=[],meds=[];
+function show(n){
+  for(var i=1;i<=3;i++){
+    document.getElementById('sec'+i).classList.remove('active');
+    document.getElementsByClassName('tab')[i-1].classList.remove('active');
+  }
+  document.getElementById('sec'+n).classList.add('active');
+  document.getElementsByClassName('tab')[n-1].classList.add('active');
+}
+function addExam(){
+  var n=document.getElementById('en').value,d=document.getElementById('ed').value,f=document.getElementById('ef').value;
+  if(!n||!d){alert('أكمل الحقول');return;}
+  exams.push({id:Date.now(),name:n,date:d,freq:f});
+  showExams();
+}
+function delExam(id){exams=exams.filter(function(e){return e.id!==id});showExams();}
+function showExams(){
+  var h=exams.map(function(e){return '<div class="item"><button class="del" onclick="delExam('+e.id+')">×</button><b>'+e.name+'</b><br>تاريخ: '+e.date+' | تكرار: '+e.freq+' أشهر</div>'}).join('');
+  document.getElementById('elist').innerHTML=h||'لا توجد فحوصات';
+}
+function addMed(){
+  var n=document.getElementById('mn').value,b=parseInt(document.getElementById('mb').value)||1,p=parseInt(document.getElementById('mp').value),d=parseInt(document.getElementById('md').value);
+  if(!n||!p||!d){alert('أكمل الحقول');return;}
+  var total=b*p,days=Math.floor(total/d);
+  meds.push({id:Date.now(),name:n,boxes:b,perBox:p,total:total,dose:d,days:days});
+  showMeds();
+}
+function delMed(id){meds=meds.filter(function(m){return m.id!==id});showMeds();}
+function showMeds(){
+  var h=meds.map(function(m){return '<div class="item"><button class="del" onclick="delMed('+m.id+')">×</button><b>'+m.name+'</b><br>'+m.boxes+' علبة × '+m.perBox+' حبة = '+m.total+' حبة<br>جرعة: '+m.dose+'/يوم | تكفي '+m.days+' يوم</div>'}).join('');
+  document.getElementById('mlist').innerHTML=h||'لا توجد أدوية';
+}
+</script>
+</body>
+</html>
